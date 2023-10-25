@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Whiteboard</title>
+</head>
+<body>
+    <canvas id="whiteboard" width="400" height="300"></canvas>
+    <button id="clearButton">Clear</button>
+    <button id="eraserButton">Eraser</button>
+    <div id="colorPalette">
+        <div class="color" style="background-color: #000;"></div>
+        <div class="color" style="background-color: #111;"></div>
+        <div class="color" style="background-color: #222;"></div>
+        <div class="color" style="background-color: #333;"></div>
+        <div class="color" style="background-color: #444;"></div>
+        <div class="color" style="background-color: #555;"></div>
+        <div class="color" style="background-color: #666;"></div>
+        <div class="color" style="background-color: #777;"></div>
+        <div class="color" style="background-color: #888;"></div>
+        <div class="color" style="background-color: #999;"></div>
+        <div class="color" style="background-color: #aaa;"></div>
+        <div class="color" style="background-color: #bbb;"></div>
+        <div class="color" style="background-color: #ccc;"></div>
+        <div class="color" style="background-color: #ddd;"></div>
+        <div class="color" style="background-color: #eee;"></div>
+        <div class="color" style="background-color: #fff;"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('whiteboard');
+        const context = canvas.getContext('2d');
+        let drawing = false;
+        let erasing = false;
+        let selectedColor = 'black';
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (erasing) {
+                context.globalCompositeOperation = 'destination-out'; // Set eraser mode
+                context.beginPath();
+                context.arc(e.touches[0].clientX - canvas.getBoundingClientRect().left, e.touches[0].clientY - canvas.getBoundingClientRect().top, 20, 0, 2 * Math.PI);
+                context.fill();
+                context.globalCompositeOperation = 'source-over'; // Reset to default
+            } else {
+                drawing = true;
+                draw(e);
+            }
+        });
+
+        canvas.addEventListener('touchend', () => {
+            drawing = false;
+            context.beginPath();
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            draw(e.touches[0]);
+        });
+
+        document.getElementById('clearButton').addEventListener('click', () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        document.getElementById('eraserButton').addEventListener('click', () => {
+            erasing = !erasing;
+        });
+
+        const colorPalette = document.querySelectorAll('.color');
+        colorPalette.forEach((color) => {
+            color.addEventListener('click', () => {
+                selectedColor = color.style.backgroundColor;
+            });
+        });
+
+        function draw(e) {
+            if (!drawing) return;
+            context.lineWidth = 5;
+            context.lineCap = 'round';
+            context.strokeStyle = erasing ? 'transparent' : selectedColor;
+            context.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+            context.stroke();
+            context.beginPath();
+            context.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+        }
+    </script>
+</body>
+</html>
